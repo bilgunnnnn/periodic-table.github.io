@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Периодийн хүснэгт - 20 элемент</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <div class="navbar">
+    <h2 class="logo">Хими</h2>
+    <div class="search-container">
+      <input
+        type="text"
+        id="search"
+        placeholder="Элемент хайх..."
+        onkeyup="searchElement()"
+      />
+    </div>
+    <nav>
+      <a href="#table">Элементүүд</a>
+      <a href="#video">Видео</a>
+      <a href="#contact">Холбоо барих</a>
+      <a href="#comments">Санал</a>
+    </nav>
+  </div>
+</header>
+
+<h1>Периодийн хүснэгт</h1>
+<p class="subtitle">Элемент дээр хулгана байрлуулахад атомын масс харагдана.</p>
+
+<div class="table" id="table"></div>
+
+<div id="modal" class="modal" onclick="closeModal(event)">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal(event)">&times;</span>
+    <h2 id="element-name"></h2>
+    <p id="element-info"></p>
+  </div>
+</div>
+
+<section id="video">
+  <h2>Сургалтын видео</h2>
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/hePb00CqvP0?si=EdwZvh-My9u8iuSu"
+    frameborder="0"
+    allowfullscreen
+  ></iframe>
+</section>
+
+<section id="contact">
+  <h2>Холбоо барих</h2>
+  <form onsubmit="return false;">
+    <input type="text" placeholder="Нэрээ оруулна уу" required />
+    <input type="email" placeholder="Имэйл хаяг" required />
+    <textarea placeholder="Таны мессеж..." rows="4" required></textarea>
+    <button type="submit">Илгээх</button>
+  </form>
+</section>
+
+<section id="comments">
+  <h2>Санал хүсэлт</h2>
+  <textarea id="userComment" placeholder="Саналаа бичнэ үү..."></textarea>
+  <button onclick="submitComment()">Илгээх</button>
+  <div id="commentList"></div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const elementsData = [
+    {num:1, symbol:"H", name:"Устөрөгч", mass:"1.008", info:"Хамгийн хөнгөн элемент, түлшний эсэд ашиглагддаг.", type:"nonmetal"},
+    {num:2, symbol:"He", name:"Гели", mass:"4.0026", info:"Идэвхгүй хий, бөмбөлөг болон хөргөлтөд хэрэглэдэг.", type:"noble"},
+    {num:3, symbol:"Li", name:"Лити", mass:"6.94", info:"Батерей үйлдвэрлэлд өргөн хэрэглэдэг.", type:"metal"},
+    {num:4, symbol:"Be", name:"Бериллий", mass:"9.0122", info:"Сансрын төхөөрөмжид хэрэглэдэг хөнгөн металл.", type:"metal"},
+    {num:5, symbol:"B", name:"Бор", mass:"10.81", info:"Шил болон угаалгын нунтаг үйлдвэрлэлд хэрэглэдэг.", type:"metalloid"},
+    {num:6, symbol:"C", name:"Нүүрстөрөгч", mass:"12.011", info:"Амьдралын үндсэн элемент, алмааз үүсгэдэг.", type:"nonmetal"},
+    {num:7, symbol:"N", name:"Азот", mass:"14.007", info:"Агаарын 78%-ийг бүрдүүлдэг.", type:"nonmetal"},
+    {num:8, symbol:"O", name:"Хүчилтөрөгч", mass:"15.999", info:"Амьсгал болон шаталтанд хэрэгтэй.", type:"nonmetal"},
+    {num:9, symbol:"F", name:"Фтор", mass:"18.998", info:"Хамгийн идэвхтэй галоген элемент.", type:"nonmetal"},
+    {num:10, symbol:"Ne", name:"Неон", mass:"20.180", info:"Неон гэрэл болон зар сурталчилгаанд хэрэглэдэг.", type:"noble"},
+    {num:11, symbol:"Na", name:"Натрий", mass:"22.990", info:"Хоол хүнсэнд өргөн хэрэглэдэг давсны үндсэн элемент.", type:"metal"},
+    {num:12, symbol:"Mg", name:"Магни", mass:"24.305", info:"Булчингийн үйл ажиллагаанд хэрэгтэй.", type:"metal"},
+    {num:13, symbol:"Al", name:"Алюминий", mass:"26.982", info:"Хөнгөн, зэврэлтэнд тэсвэртэй металл.", type:"metal"},
+    {num:14, symbol:"Si", name:"Силикон", mass:"28.085", info:"Компьютерийн чип болон шил үйлдвэрлэлд хэрэглэдэг.", type:"metalloid"},
+    {num:15, symbol:"P", name:"Фосфор", mass:"30.974", info:"Бодисын солилцоонд чухал үүрэгтэй.", type:"nonmetal"},
+    {num:16, symbol:"S", name:"Хүхэр", mass:"32.06", info:"Хаягдал боловсруулах болон эмийн үйлдвэрлэлд хэрэглэдэг.", type:"nonmetal"},
+    {num:17, symbol:"Cl", name:"Хлор", mass:"35.45", info:"Усны ариутгалд хэрэглэгддэг.", type:"nonmetal"},
+    {num:18, symbol:"Ar", name:"Аргон", mass:"39.948", info:"Идэвхгүй хий, гэрэлтүүлэгт хэрэглэдэг.", type:"noble"},
+    {num:19, symbol:"K", name:"Кали", mass:"39.098", info:"Булчингийн ажиллагаа болон цахилгаан дамжуулалтад оролцдог.", type:"metal"},
+    {num:20, symbol:"Ca", name:"Кальци", mass:"40.078", info:"Шүд ба ясны үндсэн элемент.", type:"metal"},
+  ];
+
+  const table = document.getElementById("table");
+  elementsData.forEach(el => {
+    const div = document.createElement("div");
+    div.className = `element ${el.type}`;
+    div.innerHTML = `
+      <span class="number">${el.num}</span>
+      <span class="symbol">${el.symbol}</span>
+      <span class="name">${el.name}</span>
+    `;
+    div.title = `Атомын масс: ${el.mass}`;
+    div.onclick = () => showInfo(el);
+    table.appendChild(div);
+  });
+
+  window.showInfo = function(el) {
+    document.getElementById("element-name").innerText = `${el.name} (${el.symbol})`;
+    document.getElementById("element-info").innerText = `Атомын дугаар: ${el.num} | Атомын масс: ${el.mass}. ${el.info}`;
+    document.getElementById("modal").style.display = "flex";
+  }
+
+  window.closeModal = function(event) {
+    if (
+      event.target.id === "modal" ||
+      event.target.classList.contains("close")
+    ) {
+      document.getElementById("modal").style.display = "none";
+    }
+  }
+
+  window.searchElement = function() {
+    const input = document.getElementById("search").value.toLowerCase();
+    document.querySelectorAll(".element").forEach(e => {
+      e.style.display = e.innerText.toLowerCase().includes(input) ? "" : "none";
+    });
+  }
+
+  window.submitComment = function() {
+    const commentInput = document.getElementById("userComment");
+    const commentText = commentInput.value.trim();
+    if (!commentText) return;
+
+    const commentList = document.getElementById("commentList");
+    const newComment = document.createElement("div");
+    newComment.className = "comment";
+    newComment.textContent = commentText;
+    commentList.appendChild(newComment);
+
+    commentInput.value = "";
+  }
+});
+</script>
+
+</body>
+</html>
